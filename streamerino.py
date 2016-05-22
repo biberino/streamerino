@@ -4,9 +4,10 @@
 
 
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 from gi.repository import GdkPixbuf
 from gi.repository.GdkPixbuf import Pixbuf as Pix
+
 import urllib2
 import json
 import cStringIO
@@ -29,6 +30,7 @@ class Streamerino (object):
     games = []
     viewers = []
     containers = []
+    captions = []
     content_labels = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
     content_pics = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
     urls = [[0 for x in range(num_streams)] for y in range(num_tabs)]
@@ -62,6 +64,11 @@ class Streamerino (object):
         self.progressbar = self.builder.get_object("progressbarMain")
         self.buttonRefreshGames = self.builder.get_object("buttonRefreshGames")
         self.spinnerGames = self.builder.get_object("spinnerGames")
+
+        #listen to scroll event
+        self.gameTabs.add_events(Gdk.EventMask.SCROLL_MASK |
+                Gdk.EventMask.SMOOTH_SCROLL_MASK)
+        self.gameTabs.connect('scroll-event',self.on_gameTabs_scroll)
 
         
 
@@ -102,13 +109,30 @@ class Streamerino (object):
             scrolled_window.set_policy(Gtk.PolicyType.ALWAYS,
                     Gtk.PolicyType.ALWAYS)
             vbox = Gtk.VBox(False,25)
+            vboxCap = Gtk.VBox(False,25)
             scrolled_window.add_with_viewport(vbox)
+            self.captions.append(Gtk.Label("No data loaded. Click refresh to load stream data"))
+            self.captions[i].set_use_markup(True)
+
+            vboxCap.pack_start(self.captions[i],False,False,0)
+            fixedContainer = Gtk.Fixed()
+
+            refButton = Gtk.Button("refresh streams")
+            refButton.set_size_request(10,2)
+            #connect button
+            refButton.connect("clicked",self.on_refresh_streams_click)
+
+            fixedContainer.put(refButton,10,10)
+
+            vboxCap.pack_start(fixedContainer,False,False,0)
+
+            vbox.pack_start(vboxCap,False,False,0)
             for s in range(0,num_streams):
 
                 #test fixed container
                 fixed = Gtk.Fixed()
                 hbox = Gtk.HBox(False,20)
-                self.content_labels[i][s] = Gtk.Label("jojo")
+                self.content_labels[i][s] = Gtk.Label("no data")
                 self.content_labels[i][s].set_use_markup(True)
                 self.content_pics[i][s] = Gtk.Image()
 
@@ -148,6 +172,7 @@ class Streamerino (object):
 
         step = 100.0 / num_streams
         val = 0
+        self.captions[index].set_markup(self.games[index])
        
         for i in range(0,num_streams):
             pic_buf = json.dumps(decoded['streams'][i]['preview']['medium'],sort_keys=True, indent=4)
@@ -186,9 +211,16 @@ class Streamerino (object):
 
 
 
-    def on_gameTabs_switch_page(self, page, content, number):
+    def on_gameTabs_scroll(self, widget, event):
+        print ("scrolled")
+        if event.get_scroll_deltas()[2] < 0:
+            self.gameTabs.prev_page()
+        else:
+            self.gameTabs.next_page()
+
+    def on_refresh_streams_click(self, *args):
         if not self.load:
-            start_new_thread(self.getGameInfo,(number,))
+            start_new_thread(self.getGameInfo,(self.gameTabs.get_current_page(),))
 
     def on_buttonRefreshGames_clicked(self, *args):
         start_new_thread(self.test_thread,(None,))

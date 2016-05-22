@@ -87,7 +87,6 @@
             <property name="tab_pos">left</property>
             <property name="show_border">False</property>
             <property name="scrollable">True</property>
-            <signal name="switch-page" handler="on_gameTabs_switch_page" swapped="no"/>
             <child>
               <placeholder/>
             </child>
@@ -126,7 +125,7 @@
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
