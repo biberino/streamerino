@@ -49,8 +49,11 @@ class Streamerino (object):
         for i in range(0,num_tabs):
             buf = json.dumps(decoded['top'][i]['game']['name'],sort_keys=True, indent=4)
             buf = buf[1:-1]
+            print buf
             self.games.append(buf)
-            self.viewers.append(json.dumps(decoded['top'][i]['viewers'],sort_keys=True, indent=4))
+            buf2 = json.dumps(decoded['top'][i]['viewers'],sort_keys=True, indent=4)
+            print buf2
+            self.viewers.append(buf2)
 
     def run(self):
         self.get_live_games()
@@ -127,6 +130,7 @@ class Streamerino (object):
 
 
     def getGameInfo(self,index):
+        self.spinnerGames.start()
         game = self.games[index].replace(" ", "%20")
         info = ""
         #print (game)
@@ -176,15 +180,9 @@ class Streamerino (object):
             val = val + step;
             print (val)
             self.progressbar.set_fraction((val/100.0)+0.1)
-            
 
-            #show the progress in the window
-            #self.progressbar.queue_draw()
             
-            
-            
-
-            #buf.insert_at_cursor("\n")
+        self.spinnerGames.stop()
 
 
 
@@ -193,6 +191,9 @@ class Streamerino (object):
             start_new_thread(self.getGameInfo,(number,))
 
     def on_buttonRefreshGames_clicked(self, *args):
+        start_new_thread(self.test_thread,(None,))
+
+    def test_thread(self, *args):
         self.spinnerGames.start()
         print ("Refreshing")
         self.get_live_games()
@@ -200,6 +201,8 @@ class Streamerino (object):
             self.tabLabels[i].set_text(self.games[i] + "\nViewers: " + self.viewers[i])
 
         self.spinnerGames.stop()
+
+
 
 
     def on_mainWindow_destroy(self, *args):
