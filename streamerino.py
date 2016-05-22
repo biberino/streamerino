@@ -19,7 +19,7 @@ from thread import start_new_thread
 #fuer constante
 
 
-num_tabs = 10
+num_tabs = 20
 num_streams = 15
 
 
@@ -42,7 +42,8 @@ class Streamerino (object):
 
 
     def get_live_games(self):
-        url = 'https://api.twitch.tv/kraken/games/top'
+        self.games = []
+        url = 'https://api.twitch.tv/kraken/games/top?limit=' + str(num_tabs)
         contents = urllib2.urlopen(url)
         decoded = json.loads(contents.read())
         for i in range(0,num_tabs):
@@ -56,6 +57,9 @@ class Streamerino (object):
         self.window = self.builder.get_object("mainWindow")
         self.gameTabs = self.builder.get_object("gameTabs");
         self.progressbar = self.builder.get_object("progressbarMain")
+        self.buttonRefreshGames = self.builder.get_object("buttonRefreshGames")
+        self.spinnerGames = self.builder.get_object("spinnerGames")
+
         
 
         #create tabs
@@ -187,6 +191,15 @@ class Streamerino (object):
     def on_gameTabs_switch_page(self, page, content, number):
         if not self.load:
             start_new_thread(self.getGameInfo,(number,))
+
+    def on_buttonRefreshGames_clicked(self, *args):
+        self.spinnerGames.start()
+        print ("Refreshing")
+        self.get_live_games()
+        for i in range(0,num_tabs):
+            self.tabLabels[i].set_text(self.games[i] + "\nViewers: " + self.viewers[i])
+
+        self.spinnerGames.stop()
 
 
     def on_mainWindow_destroy(self, *args):
