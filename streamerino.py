@@ -15,6 +15,7 @@ import numpy
 import array
 import cv2
 import subprocess
+from thread import start_new_thread
 #fuer constante
 
 
@@ -55,6 +56,8 @@ class Streamerino (object):
         self.get_live_games()
         self.window = self.builder.get_object("mainWindow")
         self.gameTabs = self.builder.get_object("gameTabs");
+        self.progressbar = self.builder.get_object("progressbarMain")
+        
 
         #create tabs
         self.createSubsites()
@@ -116,6 +119,7 @@ class Streamerino (object):
     def getGameInfo(self,index):
         game = self.games[index].replace(" ", "%20")
         #print (game)
+        self.progressbar.set_fraction(0)
 
         url = 'https://api.twitch.tv/kraken/streams?game=' + game
 
@@ -126,6 +130,9 @@ class Streamerino (object):
         #it = buf.get_start_iter()
         #buf.set_text('')
         #self.containers[index].get_children()
+
+        step = 100.0 / num_streams
+        val = 0
        
         for i in range(0,num_streams):
             pic_buf = json.dumps(decoded['streams'][i]['preview']['medium'],sort_keys=True, indent=4)
@@ -147,6 +154,15 @@ class Streamerino (object):
 	    self.content_labels[index][i].set_text(info)
 
             self.urls[index][i] = json.dumps(decoded['streams'][i]['channel']['url'],sort_keys=True, indent=4)[1:-1]
+            val = val + step;
+            print (val)
+            self.progressbar.set_fraction((val/100.0)+0.1)
+            
+
+            #show the progress in the window
+            #self.progressbar.queue_draw()
+            
+            
             
 
             #buf.insert_at_cursor("\n")
@@ -155,7 +171,7 @@ class Streamerino (object):
 
     def on_gameTabs_switch_page(self, page, content, number):
         if not self.load:
-            self.getGameInfo (number)
+            start_new_thread(self.getGameInfo,(number,))
 
 
     def on_mainWindow_destroy(self, *args):
