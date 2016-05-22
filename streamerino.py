@@ -26,7 +26,6 @@ num_streams = 15
 class Streamerino (object):
 
     tabLabels = []
-    tabTextAreas = []
     games = []
     viewers = []
     containers = []
@@ -69,7 +68,7 @@ class Streamerino (object):
             #buf.set_justify(gtk.JUSTIFY_CENTER)
             buf.set_alignment(xalign=0,yalign=0.5)
             self.tabLabels.append(buf)
-            self.tabTextAreas.append(Gtk.TextView())
+            #self.tabTextAreas.append(Gtk.TextView())
             self.gameTabs.append_page(self.containers[i],self.tabLabels[i])
 
 
@@ -95,22 +94,29 @@ class Streamerino (object):
             scrolled_window = Gtk.ScrolledWindow(hadjustment=None, vadjustment=None)
             scrolled_window.set_policy(Gtk.PolicyType.ALWAYS,
                     Gtk.PolicyType.ALWAYS)
-            vbox = Gtk.VBox(homogeneous=False, spacing=0)
+            vbox = Gtk.VBox(False,25)
             scrolled_window.add_with_viewport(vbox)
             for s in range(0,num_streams):
-                hbox = Gtk.HBox(homogeneous=False, spacing=0)
+
+                #test fixed container
+                fixed = Gtk.Fixed()
+                hbox = Gtk.HBox(False,20)
                 self.content_labels[i][s] = Gtk.Label("jojo")
+                self.content_labels[i][s].set_use_markup(True)
                 self.content_pics[i][s] = Gtk.Image()
 
 
                 button = Gtk.Button("watch")
                 button.connect("clicked",self.startStream, s)
-                hbox.pack_start(button,True,True,0)
+
+                button.set_size_request(10,2)
+                fixed.put(button,10,25)
+                hbox.pack_start(fixed,False,False,0)
 
 
-                hbox.pack_start(self.content_pics[i][s],True,True,0)
-                hbox.pack_start(self.content_labels[i][s],True,True,0)
-                vbox.pack_start(hbox,True,True,0)
+                hbox.pack_start(self.content_pics[i][s],False,False,0)
+                hbox.pack_start(self.content_labels[i][s],False,False,0)
+                vbox.pack_start(hbox,False,False,0)
 
 
             self.containers.append(scrolled_window)
@@ -118,6 +124,7 @@ class Streamerino (object):
 
     def getGameInfo(self,index):
         game = self.games[index].replace(" ", "%20")
+        info = ""
         #print (game)
         self.progressbar.set_fraction(0)
 
@@ -148,10 +155,18 @@ class Streamerino (object):
             
 
 
+            name = json.dumps(decoded['streams'][i]['channel']['name'],sort_keys=True, indent=4)
+            display_name = json.dumps(decoded['streams'][i]['channel']['display_name'],sort_keys=True, indent=4)
+            viewers = json.dumps(decoded['streams'][i]['viewers'],sort_keys=True, indent=4)
+            lang = json.dumps(decoded['streams'][i]['channel']['broadcaster_language'],sort_keys=True, indent=4)
+	    
 
-            info = json.dumps(decoded['streams'][i]['viewers'],sort_keys=True, indent=4) + "\n"
-            info = info + json.dumps(decoded['streams'][i]['channel']['name'],sort_keys=True, indent=4)
-	    self.content_labels[index][i].set_text(info)
+
+            info = ""
+            info = info +"<b>Name:</b> " + display_name + "\n"
+            info = info +"<b>Viewers</b> " +  viewers + "\n"
+            info = info + "<b>Language</b> " + lang + "\n"
+            self.content_labels[index][i].set_markup(info)
 
             self.urls[index][i] = json.dumps(decoded['streams'][i]['channel']['url'],sort_keys=True, indent=4)[1:-1]
             val = val + step;
