@@ -172,7 +172,7 @@ class Streamerino (object):
 
         step = 100.0 / num_streams
         val = 0
-        self.captions[index].set_markup(self.games[index])
+        self.captions[index].set_markup('<b><span size="30000">' + self.games[index] + '</span></b>')
        
         for i in range(0,num_streams):
             pic_buf = json.dumps(decoded['streams'][i]['preview']['medium'],sort_keys=True, indent=4)
