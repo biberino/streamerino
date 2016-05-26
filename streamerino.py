@@ -17,12 +17,18 @@ import array
 import cv2
 import subprocess
 from thread import start_new_thread
-#fuer constante
+
+
+#preference window
+from preferences import Pref
 
 
 num_tabs = 20
 num_streams = 15
 
+
+#TODO: add function to create or delete mor tabs/streams on the fly when
+#preferences get changed
 
 class Streamerino (object):
 
@@ -66,6 +72,8 @@ class Streamerino (object):
         self.spinnerGames = self.builder.get_object("spinnerGames")
         self.aboutdialog = self.builder.get_object("aboutdialog")
         
+
+        self.prefWindow = Pref()
 
         #listen to scroll event
         self.gameTabs.add_events(Gdk.EventMask.SCROLL_MASK |
@@ -240,6 +248,7 @@ class Streamerino (object):
 
 
     def on_mainWindow_destroy(self, *args):
+        self.prefWindow.kill()
         Gtk.main_quit()
 
 
@@ -275,7 +284,9 @@ class Streamerino (object):
 
 
     def on_mnuPref_activate(self, *args):
-        print ("jojojo")
+        print (self.prefWindow.running)
+        if self.prefWindow.running == False :
+            self.prefWindow.run(num_tabs,num_streams)
 
 
 
