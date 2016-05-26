@@ -11,25 +11,37 @@ streams in your favourite media player, you need to install livestreamer.
 First make sure you have python installed:
 ```
 apt-get install python
-´´´
 
-The easiest way to install livestreamer is using pip. Run as root:
+The easiest way to install livestreamer is using your distro's repo. For Debian you type:
 
 ```
-pip install livestreamer
-´´´
+apt-get install livestreamer
+
+For a full installation guide goto:
+[livestreamer](http://docs.livestreamer.io/install.html)
+
 
 Make sure you have Gtk3 installed:
 ```
 apt-get install libgtk-3-0
-´´´
+
 
 Now clone this repository and run the programm:
 ```
 git clone https://github.com/biberino/streamerino
 cd streamerino
 python streamerino.py
-´´´
+
+
+### Windows
+
+This programm has only be tested on unix so far. However, it should be possible
+to run this programm on windows without any issues. Follow these links to
+install the needed software and then clone the repository:
+
+
+[Python](https://www.python.org/downloads/windows/)
+[Livestreamer](http://docs.livestreamer.io/install.html)
 
 
 
