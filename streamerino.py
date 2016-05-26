@@ -64,6 +64,8 @@ class Streamerino (object):
         self.progressbar = self.builder.get_object("progressbarMain")
         self.buttonRefreshGames = self.builder.get_object("buttonRefreshGames")
         self.spinnerGames = self.builder.get_object("spinnerGames")
+        self.aboutdialog = self.builder.get_object("aboutdialog")
+        
 
         #listen to scroll event
         self.gameTabs.add_events(Gdk.EventMask.SCROLL_MASK |
@@ -254,6 +256,26 @@ class Streamerino (object):
         pix = pixl.get_pixbuf()
         pixl.close()
         return pix
+
+
+    def on_aboutdialog_destroy(self, *args):
+        self.aboutdialog.hide()
+
+    def on_dialog_action_area1_destroy(self, *args):
+        self.aboutdialog.hide()
+
+
+    #-----Menu-Callbacks
+    def on_mnuExit_activate(self, *args):
+        self.on_mainWindow_destroy()
+
+    def on_mnuInfo_activate(self, *args):
+        self.aboutdialog.run()
+        self.aboutdialog.hide()
+
+
+    def on_mnuPref_activate(self, *args):
+        print ("jojojo")
 
 
 
