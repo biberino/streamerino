@@ -45,7 +45,11 @@ install the needed software and then clone the repository:
 
 
 [Python](https://www.python.org/downloads/windows/)<br>
-[Livestreamer](http://docs.livestreamer.io/install.html)
+[Livestreamer](http://docs.livestreamer.io/install.html)<br>
+
+## Feedback
+I would be happy to receive feedback. Please consider writing an email to
+john.smithh@gmx.de
 
 
 
