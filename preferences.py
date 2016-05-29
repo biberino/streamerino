@@ -30,7 +30,7 @@ class Pref (object):
         nG =  self.numGamesInput.get_value_as_int()
         nS = self.numStreamsInput.get_value_as_int()
         header = "[default]"
-        complete = header + '\n' + `nG` + '\n' + `nS`
+        complete = header + '\n' + "num_games=" + `nG` + '\n'+ "num_streams= " + `nS`
 
         f = open('default.cfg','w')
         f.write(complete)
