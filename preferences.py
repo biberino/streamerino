@@ -27,8 +27,13 @@ class Pref (object):
 
 
     def on_buttonOK_clicked(self, *args):
-        print (self.numGamesInput.get_value_as_int())
-        print (self.numStreamsInput.get_value_as_int())
+        nG =  self.numGamesInput.get_value_as_int()
+        nS = self.numStreamsInput.get_value_as_int()
+        header = "[default]"
+        complete = header + '\n' + `nG` + '\n' + `nS`
+
+        f = open('default.cfg','w')
+        f.write(complete)
         self.on_prefWindow_destroy()
 
     def kill(self):
