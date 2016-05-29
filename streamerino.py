@@ -20,6 +20,8 @@ from thread import start_new_thread
 
 import ConfigParser, os
 
+#from colors import rgb
+
 
 #preference window
 from preferences import Pref
@@ -42,6 +44,10 @@ class Streamerino (object):
     content_labels = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
     content_pics = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
     urls = [[0 for x in range(num_streams)] for y in range(num_tabs)]
+
+    #markups for gameTab labels
+    markup_start = "<span foreground='purple' size='10000'>"
+    markup_end = "</span>"
 
     load = True
     def __init__(self):
@@ -74,6 +80,16 @@ class Streamerino (object):
         self.buttonRefreshGames = self.builder.get_object("buttonRefreshGames")
         self.spinnerGames = self.builder.get_object("spinnerGames")
         self.aboutdialog = self.builder.get_object("aboutdialog")
+
+        #set cool colors for the notebook
+        rgba = Gdk.RGBA()
+        rgba.parse('#C4FF8D')
+        color = rgba.to_color()
+        self.gameTabs.modify_bg(Gtk.StateType.ACTIVE,color)
+
+        rgba.parse('#DDFFBA')
+        color = rgba.to_color()
+        self.gameTabs.modify_bg(Gtk.StateType.PRELIGHT,color)
         
 
         self.prefWindow = Pref()
@@ -89,8 +105,11 @@ class Streamerino (object):
         self.createSubsites()
 
         for i in range(0,num_tabs):
-            buf = (Gtk.Label(self.games[i] + "\n" +
-                        "Viewers: " + self.viewers[i]))
+            buf = (Gtk.Label())
+            #enbale markup
+            buf.set_use_markup(True)
+            #print (self.markup_start + self.games[i] + "\n" + "Viewers: " + self.viewers[i] + self.markup_end)
+            buf.set_markup(self.markup_start + self.games[i] + "\n" + "Viewers: " + self.viewers[i] + self.markup_end)
             #print buf.get_justify()
             #buf.set_justify(gtk.JUSTIFY_CENTER)
             buf.set_alignment(xalign=0,yalign=0.5)
@@ -248,12 +267,13 @@ class Streamerino (object):
     def on_buttonRefreshGames_clicked(self, *args):
         start_new_thread(self.test_thread,(None,))
 
+        #rename this at some point
     def test_thread(self, *args):
         self.spinnerGames.start()
         print ("Refreshing")
         self.get_live_games()
         for i in range(0,num_tabs):
-            self.tabLabels[i].set_text(self.games[i] + "\nViewers: " + self.viewers[i])
+            self.tabLabels[i].set_markup(self.markup_start + self.games[i] + "\nViewers: " + self.viewers[i] + self.markup_end)
 
         self.spinnerGames.stop()
 
