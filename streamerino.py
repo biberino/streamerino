@@ -46,7 +46,7 @@ class Streamerino (object):
     urls = [[0 for x in range(num_streams)] for y in range(num_tabs)]
 
     #markups for gameTab labels
-    markup_start = "<span foreground='purple' size='10000'>"
+    markup_start = "<span foreground='purple' size='10000' font_desc='Sans Normal'>"
     markup_end = "</span>"
 
     load = True
