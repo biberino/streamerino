@@ -18,6 +18,8 @@ import cv2
 import subprocess
 from thread import start_new_thread
 
+import ConfigParser, os
+
 
 #preference window
 from preferences import Pref
@@ -27,7 +29,7 @@ num_tabs = 20
 num_streams = 15
 
 
-#TODO: add function to create or delete mor tabs/streams on the fly when
+#TODO: add function to create or delete more tabs/streams on the fly when
 #preferences get changed
 
 class Streamerino (object):
@@ -46,6 +48,7 @@ class Streamerino (object):
         self.builder = Gtk.Builder()
         self.builder.add_from_file("gui.glade")
         self.builder.connect_signals(self)
+        self.readConfig()
 
 
 
@@ -227,6 +230,16 @@ class Streamerino (object):
             self.gameTabs.prev_page()
         else:
             self.gameTabs.next_page()
+
+    def readConfig(self):
+        config = ConfigParser.ConfigParser()
+        config.readfp(open('default.cfg'))
+        num_streams =  config.getint('default','num_streams')
+        num_tabs =  config.getint('default','num_games')
+
+
+
+
 
     def on_refresh_streams_click(self, *args):
         if not self.load:
