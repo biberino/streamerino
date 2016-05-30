@@ -27,23 +27,25 @@ import ConfigParser, os
 from preferences import Pref
 
 
-num_tabs = 20
-num_streams = 15
+
 
 
 #TODO: add function to create or delete more tabs/streams on the fly when
 #preferences get changed
 
 class Streamerino (object):
+    num_tabs = 20
+    num_streams = 15
 
     tabLabels = []
     games = []
     viewers = []
     containers = []
     captions = []
-    content_labels = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
-    content_pics = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
-    urls = [[0 for x in range(num_streams)] for y in range(num_tabs)]
+    #moved to init, need to do it after config was read
+    #content_labels = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
+    #content_pics = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
+    #urls = [[0 for x in range(num_streams)] for y in range(num_tabs)]
 
     hover_color = '#FF3FFC'
 
@@ -55,15 +57,18 @@ class Streamerino (object):
         self.builder.add_from_file("gui.glade")
         self.builder.connect_signals(self)
         self.readConfig()
+        self.content_labels = [[0 for x in range(self.num_streams)] for y in range(self.num_tabs)] 
+        self.content_pics = [[0 for x in range(self.num_streams)] for y in range(self.num_tabs)] 
+        self.urls = [[0 for x in range(self.num_streams)] for y in range(self.num_tabs)]
 
 
 
     def get_live_games(self):
         self.games = []
-        url = 'https://api.twitch.tv/kraken/games/top?limit=' + str(num_tabs)
+        url = 'https://api.twitch.tv/kraken/games/top?limit=' + str(self.num_tabs)
         contents = urllib2.urlopen(url)
         decoded = json.loads(contents.read())
-        for i in range(0,num_tabs):
+        for i in range(0,self.num_tabs):
             buf = json.dumps(decoded['top'][i]['game']['name'],sort_keys=True, indent=4)
             buf = buf[1:-1]
             print buf
@@ -106,7 +111,7 @@ class Streamerino (object):
         #create tabs
         self.createSubsites()
 
-        for i in range(0,num_tabs):
+        for i in range(0,self.num_tabs):
             buf = (Gtk.Label())
             #enbale markup
             buf.set_use_markup(True)
@@ -156,7 +161,7 @@ class Streamerino (object):
 
 
     def createSubsites(self):
-        for i in range (0,num_tabs):
+        for i in range (0,self.num_tabs):
             scrolled_window = Gtk.ScrolledWindow(hadjustment=None, vadjustment=None)
             scrolled_window.set_policy(Gtk.PolicyType.ALWAYS,
                     Gtk.PolicyType.ALWAYS)
@@ -181,7 +186,7 @@ class Streamerino (object):
             vboxCap.pack_start(fixedContainer,False,False,0)
 
             vbox.pack_start(vboxCap,False,False,0)
-            for s in range(0,num_streams):
+            for s in range(0,self.num_streams):
 
                 #test fixed container
                 fixed = Gtk.Fixed()
@@ -225,11 +230,11 @@ class Streamerino (object):
         #buf.set_text('')
         #self.containers[index].get_children()
 
-        step = 100.0 / num_streams
+        step = 100.0 / self.num_streams
         val = 0
         self.captions[index].set_markup('<b><span size="30000">' + self.games[index] + '</span></b>')
        
-        for i in range(0,num_streams):
+        for i in range(0,self.num_streams):
             pic_buf = json.dumps(decoded['streams'][i]['preview']['medium'],sort_keys=True, indent=4)
             if pic_buf is not "null":
                 pic_buf = pic_buf[1:-1]
@@ -276,8 +281,8 @@ class Streamerino (object):
     def readConfig(self):
         config = ConfigParser.ConfigParser()
         config.readfp(open('default.cfg'))
-        num_streams =  config.getint('default','num_streams')
-        num_tabs =  config.getint('default','num_games')
+        self.num_streams =  config.getint('default','num_streams')
+        self.num_tabs =  config.getint('default','num_games')
 
 
 
@@ -295,7 +300,7 @@ class Streamerino (object):
         self.spinnerGames.start()
         print ("Refreshing")
         self.get_live_games()
-        for i in range(0,num_tabs):
+        for i in range(0,self.num_tabs):
             self.updateLabel(i)
 
         self.spinnerGames.stop()
@@ -342,7 +347,7 @@ class Streamerino (object):
     def on_mnuPref_activate(self, *args):
         print (self.prefWindow.running)
         if self.prefWindow.running == False :
-            self.prefWindow.run(num_tabs,num_streams)
+            self.prefWindow.run(self.num_tabs,self.num_streams)
 
 
 
