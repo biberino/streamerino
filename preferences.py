@@ -22,6 +22,9 @@ class Pref (object):
 
         self.numGamesInput.set_value(games)
         self.numStreamsInput.set_value(streams)
+        #debug
+        print (games)
+        print (streams)
         self.window.show_all()
         Gtk.main()
 
