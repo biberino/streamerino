@@ -45,9 +45,9 @@ class Streamerino (object):
     content_pics = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
     urls = [[0 for x in range(num_streams)] for y in range(num_tabs)]
 
-    #markups for gameTab labels
-    markup_start = "<span foreground='purple' size='10000' font_desc='Sans Normal'>"
-    markup_end = "</span>"
+    hover_color = '#FF3FFC'
+
+    
 
     load = True
     def __init__(self):
@@ -81,15 +81,17 @@ class Streamerino (object):
         self.spinnerGames = self.builder.get_object("spinnerGames")
         self.aboutdialog = self.builder.get_object("aboutdialog")
 
-        #set cool colors for the notebook
-        rgba = Gdk.RGBA()
-        rgba.parse('#C4FF8D')
-        color = rgba.to_color()
-        self.gameTabs.modify_bg(Gtk.StateType.ACTIVE,color)
+        #self.modifyColor(self.buttonRefreshGames,'#FF0000',Gtk.StateFlags.ACTIVE)
+        self.modifyColor(self.buttonRefreshGames,self.hover_color,Gtk.StateFlags.PRELIGHT)
 
-        rgba.parse('#DDFFBA')
-        color = rgba.to_color()
-        self.gameTabs.modify_bg(Gtk.StateType.PRELIGHT,color)
+
+        #set cool colors for the notebook
+        self.modifyWidgetStateBehaviour(self.gameTabs,'#C4FF8D',Gtk.StateType.ACTIVE)
+        self.modifyWidgetStateBehaviour(self.gameTabs,'#DDFFBA',Gtk.StateType.PRELIGHT)
+
+        #self.modifyColor(self.gameTabs,'#FF3FFC',Gtk.StateFlags.ACTIVE)
+        self.modifyColor(self.gameTabs,self.hover_color,Gtk.StateFlags.PRELIGHT)
+
         
 
         self.prefWindow = Pref()
@@ -109,11 +111,12 @@ class Streamerino (object):
             #enbale markup
             buf.set_use_markup(True)
             #print (self.markup_start + self.games[i] + "\n" + "Viewers: " + self.viewers[i] + self.markup_end)
-            buf.set_markup(self.markup_start + self.games[i] + "\n" + "Viewers: " + self.viewers[i] + self.markup_end)
+            #buf.set_markup(self.markup_start + self.games[i] + "\n" + "Viewers: " + self.viewers[i] + self.markup_end)
             #print buf.get_justify()
             #buf.set_justify(gtk.JUSTIFY_CENTER)
             buf.set_alignment(xalign=0,yalign=0.5)
             self.tabLabels.append(buf)
+            self.updateLabel(i)
             #self.tabTextAreas.append(Gtk.TextView())
             self.gameTabs.append_page(self.containers[i],self.tabLabels[i])
 
@@ -125,6 +128,23 @@ class Streamerino (object):
         self.gameTabs.set_current_page(0);
         self.load = False
         Gtk.main()
+
+    def modifyWidgetStateBehaviour(self, w, cHex, stateType):
+        rgba = Gdk.RGBA()
+        rgba.parse(cHex)
+        color = rgba.to_color()
+        w.modify_bg(stateType,color)
+
+    def modifyColor(self,w,cHex,stateFlag):
+        rgba = Gdk.RGBA()
+        rgba.parse(cHex)
+        w.override_color(stateFlag,rgba)
+    
+    def updateLabel(self, index):
+        markupstring = "<span foreground='purple' size='12000' font_desc='Sans Normal'>"
+        markupstring += self.games[index] + "</span>" + "\n"
+        markupstring +=  "<span foreground='purple' size='8000' font_desc='Sans Normal'>" + "Viewers: " + self.viewers[index] + "</span>"
+        self.tabLabels[index].set_markup(markupstring)
 
     def startStream(self,widget, data =None):
         tab = self.gameTabs.get_current_page()
@@ -153,6 +173,8 @@ class Streamerino (object):
             refButton.set_size_request(10,2)
             #connect button
             refButton.connect("clicked",self.on_refresh_streams_click)
+            #set button color
+            self.modifyColor(refButton,self.hover_color,Gtk.StateFlags.PRELIGHT)
 
             fixedContainer.put(refButton,10,10)
 
@@ -171,6 +193,7 @@ class Streamerino (object):
 
                 button = Gtk.Button("watch")
                 button.connect("clicked",self.startStream, s)
+                self.modifyColor(button,self.hover_color,Gtk.StateFlags.PRELIGHT)
 
                 button.set_size_request(10,2)
                 fixed.put(button,10,25)
@@ -265,15 +288,15 @@ class Streamerino (object):
             start_new_thread(self.getGameInfo,(self.gameTabs.get_current_page(),))
 
     def on_buttonRefreshGames_clicked(self, *args):
-        start_new_thread(self.test_thread,(None,))
+        start_new_thread(self.update_games_thread,(None,))
 
-        #rename this at some point
-    def test_thread(self, *args):
+        
+    def update_games_thread(self, *args):
         self.spinnerGames.start()
         print ("Refreshing")
         self.get_live_games()
         for i in range(0,num_tabs):
-            self.tabLabels[i].set_markup(self.markup_start + self.games[i] + "\nViewers: " + self.viewers[i] + self.markup_end)
+            self.updateLabel(i)
 
         self.spinnerGames.stop()
 
