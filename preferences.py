@@ -19,7 +19,12 @@ class Pref (object):
         self.window = self.builder.get_object("prefWindow")
         self.numGamesInput = self.builder.get_object("numGamesInput")
         self.numStreamsInput = self.builder.get_object("numStreamsInput")
+        self.frame = self.builder.get_object("frame1")
+        self.radioStreamer = self.builder.get_object("radioStreamer")
+        self.radioBrowser = self.builder.get_object("radioBrowser")
 
+
+        #print self.radioBrowser.get_active()
         self.numGamesInput.set_value(games)
         self.numStreamsInput.set_value(streams)
         #debug
