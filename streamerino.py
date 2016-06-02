@@ -42,6 +42,7 @@ class Streamerino (object):
     viewers = []
     containers = []
     captions = []
+    currentTab=0
     #moved to init, need to do it after config was read
     #content_labels = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
     #content_pics = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
@@ -63,6 +64,7 @@ class Streamerino (object):
 
 
 
+    #fills self.games and self.viewers with data
     def get_live_games(self):
         self.games = []
         url = 'https://api.twitch.tv/kraken/games/top?limit=' + str(self.num_tabs)
@@ -80,37 +82,43 @@ class Streamerino (object):
     def run(self):
         self.get_live_games()
         self.window = self.builder.get_object("mainWindow")
-        self.gameTabs = self.builder.get_object("gameTabs");
+        #self.gameTabs = self.builder.get_object("gameTabs")
+        self.mainBox = self.builder.get_object("mainBox")
         self.progressbar = self.builder.get_object("progressbarMain")
         self.buttonRefreshGames = self.builder.get_object("buttonRefreshGames")
         self.spinnerGames = self.builder.get_object("spinnerGames")
         self.aboutdialog = self.builder.get_object("aboutdialog")
+        self.scrollGames = self.builder.get_object("scrollGames")
+        self.scrollStreams = self.builder.get_object("scrollStreams")
 
         #self.modifyColor(self.buttonRefreshGames,'#FF0000',Gtk.StateFlags.ACTIVE)
         self.modifyColor(self.buttonRefreshGames,self.hover_color,Gtk.StateFlags.PRELIGHT)
 
 
         #set cool colors for the notebook
-        self.modifyWidgetStateBehaviour(self.gameTabs,'#C4FF8D',Gtk.StateType.ACTIVE)
-        self.modifyWidgetStateBehaviour(self.gameTabs,'#DDFFBA',Gtk.StateType.PRELIGHT)
+        #self.modifyWidgetStateBehaviour(self.gameTabs,'#C4FF8D',Gtk.StateType.ACTIVE)
+        #self.modifyWidgetStateBehaviour(self.gameTabs,'#DDFFBA',Gtk.StateType.PRELIGHT)
 
         #self.modifyColor(self.gameTabs,'#FF3FFC',Gtk.StateFlags.ACTIVE)
-        self.modifyColor(self.gameTabs,self.hover_color,Gtk.StateFlags.PRELIGHT)
+        #self.modifyColor(self.gameTabs,self.hover_color,Gtk.StateFlags.PRELIGHT)
 
         
 
         self.prefWindow = Pref()
 
         #listen to scroll event
-        self.gameTabs.add_events(Gdk.EventMask.SCROLL_MASK |
-                Gdk.EventMask.SMOOTH_SCROLL_MASK)
-        self.gameTabs.connect('scroll-event',self.on_gameTabs_scroll)
+        #self.gameTabs.add_events(Gdk.EventMask.SCROLL_MASK |
+        #        Gdk.EventMask.SMOOTH_SCROLL_MASK)
+        #self.gameTabs.connect('scroll-event',self.on_gameTabs_scroll)
 
         
 
         #create tabs
         self.createSubsites()
 
+
+        #old notebook code
+        '''
         for i in range(0,self.num_tabs):
             buf = (Gtk.Label())
             #enbale markup
@@ -124,15 +132,74 @@ class Streamerino (object):
             self.updateLabel(i)
             #self.tabTextAreas.append(Gtk.TextView())
             self.gameTabs.append_page(self.containers[i],self.tabLabels[i])
+        '''
 
-
+        #new code
+        self.createGameList()
+        
+        #set welcome page
+        self.createWelcomePage()
 
 
 
         self.window.show_all()
-        self.gameTabs.set_current_page(0);
+        #self.gameTabs.set_current_page(0);
         self.load = False
         Gtk.main()
+
+
+    def createWelcomePage(self):
+        buf = Gtk.Label("Welcome")
+        self.scrollStreams.add(buf)
+        #mainBox.show_all()
+        #buf.show()
+
+
+    def createGameList(self):
+        vbox = Gtk.VBox(False,25)
+        self.scrollGames.add_with_viewport(vbox)
+        for i in range(0,self.num_tabs):
+            hbox = Gtk.HBox(False,25)
+            buf = (Gtk.Label())
+            buf.set_use_markup(True)
+            buf.set_alignment(xalign=0,yalign=0.5)
+            self.tabLabels.append(buf)
+            self.updateLabel(i)
+            eventbox = Gtk.EventBox()
+            eventbox.connect('button-press-event',self.switchTab,i)
+            
+            hbox.pack_start(eventbox,False,False,0)
+            eventbox.add(self.tabLabels[i])
+            #signals
+            #self.tabLabels[i].add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
+            #self.tabLabels[i].connect('button-press-event',self.switchTab,"data")
+            #self.tabLabels[i].connect('move-cursor',self.switchTab,"data")
+
+            vbox.pack_start(hbox,False,False,0)
+            #colors
+            #self.modifyWidgetStateBehaviour(self.tabLabels[i],'#DDFFBA',Gtk.StateType.ACTIVE)
+            #self.modifyColor(self.tabLabels[i],'#FF3FFC',Gtk.StateFlags.PRELIGHT)
+        
+
+
+        
+        
+
+    def switchTab(self, w, e, data):
+        print data
+        print self.scrollStreams.get_child()
+        self.currentTab = data
+        self.scrollStreams.remove(self.scrollStreams.get_child())
+        self.scrollStreams.add(self.containers[data])
+        self.scrollStreams.show_all()
+
+
+
+        #TODO: listen to different events(mouse buttons)
+        #print e.type
+        #print event
+        #print w
+
 
     def modifyWidgetStateBehaviour(self, w, cHex, stateType):
         rgba = Gdk.RGBA()
@@ -144,7 +211,9 @@ class Streamerino (object):
         rgba = Gdk.RGBA()
         rgba.parse(cHex)
         w.override_color(stateFlag,rgba)
-    
+
+
+    #fills tabLabel[index] with formatted data
     def updateLabel(self, index):
         markupstring = "<span foreground='purple' size='12000' font_desc='Sans Normal'>"
         markupstring += self.games[index] + "</span>" + "\n"
@@ -152,7 +221,7 @@ class Streamerino (object):
         self.tabLabels[index].set_markup(markupstring)
 
     def startStream(self,widget, data =None):
-        tab = self.gameTabs.get_current_page()
+        tab = self.currentTab
         print ("Starting " + self.urls[tab][data])
 
         subprocess.Popen(["livestreamer",self.urls[tab][data],"best"])
@@ -167,7 +236,7 @@ class Streamerino (object):
                     Gtk.PolicyType.ALWAYS)
             vbox = Gtk.VBox(False,25)
             vboxCap = Gtk.VBox(False,25)
-            scrolled_window.add_with_viewport(vbox)
+            #scrolled_window.add_with_viewport(vbox)
             self.captions.append(Gtk.Label("No data loaded. Click refresh to load stream data"))
             self.captions[i].set_use_markup(True)
 
@@ -210,7 +279,8 @@ class Streamerino (object):
                 vbox.pack_start(hbox,False,False,0)
 
 
-            self.containers.append(scrolled_window)
+            #test
+            self.containers.append(vbox)
 
 
     def getGameInfo(self,index):
@@ -290,7 +360,7 @@ class Streamerino (object):
 
     def on_refresh_streams_click(self, *args):
         if not self.load:
-            start_new_thread(self.getGameInfo,(self.gameTabs.get_current_page(),))
+            start_new_thread(self.getGameInfo,(self.currentTab,))
 
     def on_buttonRefreshGames_clicked(self, *args):
         start_new_thread(self.update_games_thread,(None,))
