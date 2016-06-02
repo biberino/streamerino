@@ -49,8 +49,8 @@ class Streamerino (object):
     #urls = [[0 for x in range(num_streams)] for y in range(num_tabs)]
 
     hover_color = '#FF3FFC'
-    normal_color = '#C4FF8D'
-    active_color = '#FFFFFF'
+    normal_color = '#EDEDED' #basic gtk color
+    active_color = '#C4FF8D'
 
     
 
@@ -152,7 +152,10 @@ class Streamerino (object):
 
 
     def createWelcomePage(self):
-        buf = Gtk.Label("Welcome")
+        l = Gtk.Label()
+        l.set_use_markup(True)
+        l.set_markup("<span foreground='purple' size='12000' font_desc='Sans Normal'>Welcome to Streamerino V0.8</span>")
+        buf = l
         self.last = buf
         #self.mainBox.pack_start(buf,True,True,0)
         self.mainBox.add(buf)
@@ -179,6 +182,7 @@ class Streamerino (object):
             self.modifyWidgetStateBehaviour(eventbox,self.normal_color,Gtk.StateType.NORMAL)
             
             hbox.pack_start(eventbox,False,False,0)
+            #self.modifyWidgetStateBehaviour(hbox,self.normal_color,Gtk.StateType.NORMAL)
             eventbox.add(self.tabLabels[i])
             #signals
             #self.tabLabels[i].add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
