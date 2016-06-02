@@ -154,8 +154,15 @@ class Streamerino (object):
     def createWelcomePage(self):
         l = Gtk.Label()
         l.set_use_markup(True)
-        l.set_markup("<span foreground='purple' size='12000' font_desc='Sans Normal'>Welcome to Streamerino V0.8</span>")
-        buf = l
+        l.set_markup("<span foreground='purple' size='16000' font_desc='Gentium BBook'>Welcome to Streamerino V0.8</span>")
+        vbox = Gtk.VBox(False,25)
+        vbox.pack_start(l,True,True,0)
+
+        l2 = Gtk.Label()
+        l2.set_use_markup(True)
+        l2.set_markup("<span foreground='purple' size='16000' font_desc='Gentium BBook'>start by choosing a game</span>")
+        vbox.pack_start(l2,True,True,0)
+        buf = vbox
         self.last = buf
         #self.mainBox.pack_start(buf,True,True,0)
         self.mainBox.add(buf)
@@ -324,7 +331,7 @@ class Streamerino (object):
 
         step = 100.0 / self.num_streams
         val = 0
-        self.captions[index].set_markup('<b><span size="30000">' + self.games[index] + '</span></b>')
+        self.captions[index].set_markup('<b><span font_desc="Bandal" size="35000" color="purple">' + self.games[index] + '</span></b>')
        
         for i in range(0,self.num_streams):
             pic_buf = json.dumps(decoded['streams'][i]['preview']['medium'],sort_keys=True, indent=4)
