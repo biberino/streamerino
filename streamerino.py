@@ -163,9 +163,21 @@ class Streamerino (object):
 
 
     def createWelcomePage(self):
+        path = which("livestreamer")
+        if path is None:
+            #TODO react to it
+            msg="<span size='16000' color='red'>unable to find livestreamer<br>only browser backend supported</span>"
+        else:
+            msg="<span size='16000' color='green'>livestreamer found: " + path +"</span>"
+
+        
+
+
         l = Gtk.Label()
         l.set_use_markup(True)
-        l.set_markup("<span foreground='purple' size='16000' font_desc='Gentium Book'>Welcome to Streamerino V0.8</span>")
+        info = "<span foreground='purple' size='16000' font_desc='Gentium Book'>Welcome to Streamerino V0.8 \n </span>"
+        info += msg
+        l.set_markup(info)
         vbox = Gtk.VBox(False,25)
         vbox.pack_start(l,True,True,0)
 
@@ -500,8 +512,29 @@ class Streamerino (object):
 
 
 
-Streamerino().run()
+#------------cool helpers-----------
 
+#thanks to stackoverflow
+def which(program):
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+
+Streamerino().run()
 
 
 
