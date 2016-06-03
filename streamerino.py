@@ -42,7 +42,9 @@ class Streamerino (object):
     viewers = []
     containers = []
     captions = []
+    gamePics = [] #contains the url
     currentTab=0
+    content_pics_games = []
     #moved to init, need to do it after config was read
     #content_labels = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
     #content_pics = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
@@ -67,9 +69,11 @@ class Streamerino (object):
 
 
 
-    #fills self.games and self.viewers with data
+    #fills self.games and self.viewers, self.gamePics with data
     def get_live_games(self):
         self.games = []
+        self.viewers = []
+        self.gamePics = []
         url = 'https://api.twitch.tv/kraken/games/top?limit=' + str(self.num_tabs)
         contents = urllib2.urlopen(url)
         decoded = json.loads(contents.read())
@@ -81,6 +85,10 @@ class Streamerino (object):
             buf2 = json.dumps(decoded['top'][i]['viewers'],sort_keys=True, indent=4)
             print buf2
             self.viewers.append(buf2)
+            buf3 = json.dumps(decoded['top'][i]['game']['box']['small'],sort_keys=True, indent=4)
+            print buf3
+            self.gamePics.append(buf3)
+
 
     def run(self):
         self.get_live_games()
@@ -143,6 +151,9 @@ class Streamerino (object):
         #set welcome page
         self.createWelcomePage()
 
+        #fill games tabs with data
+        self.on_buttonRefreshGames_clicked()
+
 
 
         self.window.show_all()
@@ -154,13 +165,13 @@ class Streamerino (object):
     def createWelcomePage(self):
         l = Gtk.Label()
         l.set_use_markup(True)
-        l.set_markup("<span foreground='purple' size='16000' font_desc='Gentium BBook'>Welcome to Streamerino V0.8</span>")
+        l.set_markup("<span foreground='purple' size='16000' font_desc='Gentium Book'>Welcome to Streamerino V0.8</span>")
         vbox = Gtk.VBox(False,25)
         vbox.pack_start(l,True,True,0)
 
         l2 = Gtk.Label()
         l2.set_use_markup(True)
-        l2.set_markup("<span foreground='purple' size='16000' font_desc='Gentium BBook'>start by choosing a game</span>")
+        l2.set_markup("<span foreground='purple' size='16000' font_desc='Gentium Book'>start by choosing a game</span>")
         vbox.pack_start(l2,True,True,0)
         buf = vbox
         self.last = buf
@@ -181,16 +192,21 @@ class Streamerino (object):
             buf.set_use_markup(True)
             buf.set_alignment(xalign=0,yalign=0.5)
             self.tabLabels.append(buf)
-            self.updateLabel(i)
+            #on_buttonRefreshGames_clicked does that now
+            #self.updateLabel(i)
             eventbox = Gtk.EventBox()
             
             #self.modifyColor(eventbox,self.hover_color,Gtk.StateFlags.NORMAL)
             eventbox.connect('button-press-event',self.switchTab,i)
             self.modifyWidgetStateBehaviour(eventbox,self.normal_color,Gtk.StateType.NORMAL)
             
-            hbox.pack_start(eventbox,False,False,0)
+            
             #self.modifyWidgetStateBehaviour(hbox,self.normal_color,Gtk.StateType.NORMAL)
             eventbox.add(self.tabLabels[i])
+            
+            self.content_pics_games.append(Gtk.Image())
+            hbox.pack_start(self.content_pics_games[i],False,False,0)
+            hbox.pack_start(eventbox,False,False,0)
             #signals
             #self.tabLabels[i].add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
             #self.tabLabels[i].connect('button-press-event',self.switchTab,"data")
@@ -370,6 +386,22 @@ class Streamerino (object):
 
 
 
+    #assuming self.content_pics_games was created and self.gamePics contains the
+    #urls
+    def get_Game_pics(self):
+        for i in range (0,self.num_tabs):
+            pic_buf = self.gamePics[i]
+            if pic_buf is not "null":
+                pic_buf = pic_buf[1:-1]
+                print (pic_buf)
+                file_pic = cStringIO.StringIO(urllib2.urlopen(pic_buf).read())
+                img = Image.open(file_pic)
+
+                p = self.image2pixbuf(numpy.array(img))
+                #scaled_buf = p.scale_simple(200,112,GdkPixbuf.InterpType.BILINEAR)
+                self.content_pics_games[i].set_from_pixbuf(p)
+
+
     def on_gameTabs_scroll(self, widget, event):
         print ("scrolled")
         if event.get_scroll_deltas()[2] < 0:
@@ -401,6 +433,7 @@ class Streamerino (object):
         self.get_live_games()
         for i in range(0,self.num_tabs):
             self.updateLabel(i)
+        self.get_Game_pics()
 
         self.spinnerGames.stop()
 
