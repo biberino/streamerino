@@ -188,6 +188,7 @@ class Streamerino (object):
         self.last_box = None
         for i in range(0,self.num_tabs):
             hbox = Gtk.HBox(False,25)
+            #vbox2 = Gtk.VBox(False,25)
             buf = (Gtk.Label())
             buf.set_use_markup(True)
             buf.set_alignment(xalign=0,yalign=0.5)
@@ -206,6 +207,13 @@ class Streamerino (object):
             
             self.content_pics_games.append(Gtk.Image())
             hbox.pack_start(self.content_pics_games[i],False,False,0)
+            #vbox2.pack_start(eventbox,False,False,0)
+
+
+            #refButton = Gtk.Button("refresh streams")
+
+            #refButton.set_size_request(10,25)
+            #vbox2.pack_start(refButton,False,False,0)
             hbox.pack_start(eventbox,False,False,0)
             #signals
             #self.tabLabels[i].add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
@@ -262,7 +270,7 @@ class Streamerino (object):
     def updateLabel(self, index):
         markupstring = "<span foreground='purple' size='12000' font_desc='Sans Normal'>"
         markupstring += self.games[index] + "</span>" + "\n"
-        markupstring +=  "<span foreground='purple' size='8000' font_desc='Sans Normal'>" + "Viewers: " + self.viewers[index] + "</span>"
+        markupstring +=  "<span foreground='purple' size='9500' font_desc='Sans Normal'>" + "Viewers: " + self.viewers[index] + "</span>"
         self.tabLabels[index].set_markup(markupstring)
 
     def startStream(self,widget, data =None):
@@ -287,15 +295,19 @@ class Streamerino (object):
 
             vboxCap.pack_start(self.captions[i],False,False,0)
             fixedContainer = Gtk.Fixed()
+            
+            pb = Pix.new_from_file_at_size('refresh.png', 20,20)
+            refIm = Gtk.Image()
+            refIm.set_from_pixbuf(pb)
 
-            refButton = Gtk.Button("refresh streams")
-            refButton.set_size_request(10,2)
+            refButton = Gtk.Button(label="refresh streams", image=refIm)
+            refButton.set_size_request(10,10)
             #connect button
             refButton.connect("clicked",self.on_refresh_streams_click)
             #set button color
             self.modifyColor(refButton,self.hover_color,Gtk.StateFlags.PRELIGHT)
 
-            fixedContainer.put(refButton,10,10)
+            fixedContainer.put(refButton,10,0)
 
             vboxCap.pack_start(fixedContainer,False,False,0)
 
@@ -347,7 +359,7 @@ class Streamerino (object):
 
         step = 100.0 / self.num_streams
         val = 0
-        self.captions[index].set_markup('<b><span font_desc="Bandal" size="35000" color="purple">' + self.games[index] + '</span></b>')
+        self.captions[index].set_markup('<span font_desc="Bookman Uralic Bold" size="35000" color="purple">' + self.games[index] + '</span>')
        
         for i in range(0,self.num_streams):
             pic_buf = json.dumps(decoded['streams'][i]['preview']['medium'],sort_keys=True, indent=4)
