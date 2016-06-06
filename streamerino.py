@@ -166,19 +166,24 @@ class Streamerino (object):
         path = which("livestreamer")
         if path is None:
             #TODO react to it
-            msg="<span size='16000' color='red'>unable to find livestreamer<br>only browser backend supported</span>"
+            msg="<span size='16000' color='red'>unable to find livestreamer\nonly browser backend supported</span>"
         else:
             msg="<span size='16000' color='green'>livestreamer found: " + path +"</span>"
 
         
 
 
+        pb = Pix.new_from_file_at_size('icon.png', 48,48)
+        im = Gtk.Image()
+        im.set_from_pixbuf(pb)
+
         l = Gtk.Label()
         l.set_use_markup(True)
-        info = "<span foreground='purple' size='16000' font_desc='Gentium Book'>Welcome to Streamerino V0.8 \n </span>"
+        info = "<span foreground='purple' size='20000' font_desc='Gentium Book'>Welcome to Streamerino V0.8 \n </span>"
         info += msg
         l.set_markup(info)
         vbox = Gtk.VBox(False,25)
+        vbox.pack_start(im,True,True,0)
         vbox.pack_start(l,True,True,0)
 
         l2 = Gtk.Label()
@@ -532,6 +537,11 @@ def which(program):
                 return exe_file
 
     return None
+
+
+def formatString(string,size,color):
+    buf = "<span color='" + color +"' size='"+ size +"'>"+ string + "</span>"
+    return buf
 
 
 Streamerino().run()
