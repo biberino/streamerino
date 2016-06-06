@@ -164,27 +164,47 @@ class Streamerino (object):
 
     def createWelcomePage(self):
         path = which("livestreamer")
+        
         if path is None:
             #TODO react to it
             msg="<span size='16000' color='red'>unable to find livestreamer\nonly browser backend supported</span>"
         else:
-            msg="<span size='16000' color='green'>livestreamer found: " + path +"</span>"
+            msg="<span size='16000' color='green' font_desc='Gentium Book'> " + u'\u2713' + "livestreamer found: " + path +"</span>"
 
         
 
 
+        hbox = Gtk.HBox(False,25)
         pb = Pix.new_from_file_at_size('icon.png', 48,48)
-        im = Gtk.Image()
-        im.set_from_pixbuf(pb)
+        #im = Gtk.Image()
+        #im.set_from_pixbuf(pb)
 
+        capL = Gtk.Label()
+        
         l = Gtk.Label()
         l.set_use_markup(True)
         info = "<span foreground='purple' size='20000' font_desc='Gentium Book'>Welcome to Streamerino V0.8 \n </span>"
-        info += msg
-        l.set_markup(info)
+        capL.set_use_markup(True)
+        capL.set_markup(info)
+        l.set_markup(msg)
         vbox = Gtk.VBox(False,25)
-        vbox.pack_start(im,True,True,0)
-        vbox.pack_start(l,True,True,0)
+        #hbox.pack_start(im,False,False,0)
+        buf = str(self.num_tabs) + " Games will be loaded\n"
+        buf += str(self.num_streams) + " Streams per Game will be loaded"
+        constInfo = formatString(buf,"16000","purple")
+        lab = Gtk.Label()
+        lab.set_use_markup(True)
+        lab.set_markup(constInfo)
+        
+
+
+
+
+        hbox.pack_start(l,False,False,0)
+        hbox.pack_start(lab,False,False,0)
+
+        vbox.pack_start(capL,True,True,0)
+        vbox.pack_start(hbox,True,True,0)
 
         l2 = Gtk.Label()
         l2.set_use_markup(True)
