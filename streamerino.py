@@ -163,11 +163,48 @@ class Streamerino (object):
 
 
     def createWelcomePage(self):
+        path = which("livestreamer")
+        
+        if path is None:
+            #TODO react to it
+            msg="<span size='16000' color='red'>unable to find livestreamer\nonly browser backend supported</span>"
+        else:
+            msg="<span size='16000' color='green' font_desc='Gentium Book'> " + u'\u2713' + "livestreamer found: " + path +"</span>"
+
+        
+
+
+        hbox = Gtk.HBox(False,25)
+        pb = Pix.new_from_file_at_size('icon.png', 48,48)
+        #im = Gtk.Image()
+        #im.set_from_pixbuf(pb)
+
+        capL = Gtk.Label()
+        
         l = Gtk.Label()
         l.set_use_markup(True)
-        l.set_markup("<span foreground='purple' size='16000' font_desc='Gentium Book'>Welcome to Streamerino V0.8</span>")
+        info = "<span foreground='purple' size='20000' font_desc='Gentium Book'>Welcome to Streamerino V0.8 \n </span>"
+        capL.set_use_markup(True)
+        capL.set_markup(info)
+        l.set_markup(msg)
         vbox = Gtk.VBox(False,25)
-        vbox.pack_start(l,True,True,0)
+        #hbox.pack_start(im,False,False,0)
+        buf = str(self.num_tabs) + " Games will be loaded\n"
+        buf += str(self.num_streams) + " Streams per Game will be loaded"
+        constInfo = formatString(buf,"16000","purple")
+        lab = Gtk.Label()
+        lab.set_use_markup(True)
+        lab.set_markup(constInfo)
+        
+
+
+
+
+        hbox.pack_start(l,False,False,0)
+        hbox.pack_start(lab,False,False,0)
+
+        vbox.pack_start(capL,True,True,0)
+        vbox.pack_start(hbox,True,True,0)
 
         l2 = Gtk.Label()
         l2.set_use_markup(True)
@@ -188,6 +225,7 @@ class Streamerino (object):
         self.last_box = None
         for i in range(0,self.num_tabs):
             hbox = Gtk.HBox(False,25)
+            #vbox2 = Gtk.VBox(False,25)
             buf = (Gtk.Label())
             buf.set_use_markup(True)
             buf.set_alignment(xalign=0,yalign=0.5)
@@ -206,6 +244,13 @@ class Streamerino (object):
             
             self.content_pics_games.append(Gtk.Image())
             hbox.pack_start(self.content_pics_games[i],False,False,0)
+            #vbox2.pack_start(eventbox,False,False,0)
+
+
+            #refButton = Gtk.Button("refresh streams")
+
+            #refButton.set_size_request(10,25)
+            #vbox2.pack_start(refButton,False,False,0)
             hbox.pack_start(eventbox,False,False,0)
             #signals
             #self.tabLabels[i].add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
@@ -262,7 +307,7 @@ class Streamerino (object):
     def updateLabel(self, index):
         markupstring = "<span foreground='purple' size='12000' font_desc='Sans Normal'>"
         markupstring += self.games[index] + "</span>" + "\n"
-        markupstring +=  "<span foreground='purple' size='8000' font_desc='Sans Normal'>" + "Viewers: " + self.viewers[index] + "</span>"
+        markupstring +=  "<span foreground='purple' size='9500' font_desc='Sans Normal'>" + "Viewers: " + self.viewers[index] + "</span>"
         self.tabLabels[index].set_markup(markupstring)
 
     def startStream(self,widget, data =None):
@@ -287,15 +332,19 @@ class Streamerino (object):
 
             vboxCap.pack_start(self.captions[i],False,False,0)
             fixedContainer = Gtk.Fixed()
+            
+            pb = Pix.new_from_file_at_size('refresh.png', 20,20)
+            refIm = Gtk.Image()
+            refIm.set_from_pixbuf(pb)
 
-            refButton = Gtk.Button("refresh streams")
-            refButton.set_size_request(10,2)
+            refButton = Gtk.Button(label="refresh streams", image=refIm)
+            refButton.set_size_request(10,10)
             #connect button
             refButton.connect("clicked",self.on_refresh_streams_click)
             #set button color
             self.modifyColor(refButton,self.hover_color,Gtk.StateFlags.PRELIGHT)
 
-            fixedContainer.put(refButton,10,10)
+            fixedContainer.put(refButton,10,0)
 
             vboxCap.pack_start(fixedContainer,False,False,0)
 
@@ -347,7 +396,7 @@ class Streamerino (object):
 
         step = 100.0 / self.num_streams
         val = 0
-        self.captions[index].set_markup('<b><span font_desc="Bandal" size="35000" color="purple">' + self.games[index] + '</span></b>')
+        self.captions[index].set_markup('<span font_desc="Bookman Uralic Bold" size="35000" color="purple">' + self.games[index] + '</span>')
        
         for i in range(0,self.num_streams):
             pic_buf = json.dumps(decoded['streams'][i]['preview']['medium'],sort_keys=True, indent=4)
@@ -363,17 +412,19 @@ class Streamerino (object):
             
 
 
-            name = json.dumps(decoded['streams'][i]['channel']['name'],sort_keys=True, indent=4)
-            display_name = json.dumps(decoded['streams'][i]['channel']['display_name'],sort_keys=True, indent=4)
+            name = json.dumps(decoded['streams'][i]['channel']['name'],sort_keys=True, indent=4)[1:-1]
+            display_name = json.dumps(decoded['streams'][i]['channel']['display_name'],sort_keys=True, indent=4)[1:-1]
             viewers = json.dumps(decoded['streams'][i]['viewers'],sort_keys=True, indent=4)
-            lang = json.dumps(decoded['streams'][i]['channel']['broadcaster_language'],sort_keys=True, indent=4)
+            lang = json.dumps(decoded['streams'][i]['channel']['broadcaster_language'],sort_keys=True, indent=4)[1:-1]
 	    
 
 
             info = ""
+            info = "<span color='purple' size='15000'>"
             info = info +"<b>Name:</b> " + display_name + "\n"
-            info = info +"<b>Viewers</b> " +  viewers + "\n"
-            info = info + "<b>Language</b> " + lang + "\n"
+            info = info +"<b>Viewers:</b> " +  viewers + "\n"
+            info = info + "<b>Language:</b> " + lang + "\n"
+            info = info + "</span>"
             self.content_labels[index][i].set_markup(info)
 
             self.urls[index][i] = json.dumps(decoded['streams'][i]['channel']['url'],sort_keys=True, indent=4)[1:-1]
@@ -486,8 +537,34 @@ class Streamerino (object):
 
 
 
-Streamerino().run()
+#------------cool helpers-----------
 
+#thanks to stackoverflow
+def which(program):
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+
+def formatString(string,size,color):
+    buf = "<span color='" + color +"' size='"+ size +"'>"+ string + "</span>"
+    return buf
+
+
+Streamerino().run()
 
 
 
