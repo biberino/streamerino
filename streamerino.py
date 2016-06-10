@@ -19,6 +19,8 @@ import subprocess
 from thread import start_new_thread
 
 import ConfigParser, os
+import threading
+import time
 
 #from colors import rgb
 
@@ -45,6 +47,8 @@ class Streamerino (object):
     gamePics = [] #contains the url
     currentTab=0
     content_pics_games = []
+    livestreamerOutputLabels = []
+    
     #moved to init, need to do it after config was read
     #content_labels = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
     #content_pics = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
@@ -100,6 +104,7 @@ class Streamerino (object):
         self.spinnerGames = self.builder.get_object("spinnerGames")
         self.aboutdialog = self.builder.get_object("aboutdialog")
         self.scrollGames = self.builder.get_object("scrollGames")
+        self.textInfo = self.builder.get_object("textInfo")
         #self.scrollStreams = self.builder.get_object("scrollStreams")
 
         #self.modifyColor(self.buttonRefreshGames,'#FF0000',Gtk.StateFlags.ACTIVE)
@@ -314,8 +319,21 @@ class Streamerino (object):
         tab = self.currentTab
         print ("Starting " + self.urls[tab][data])
 
-        subprocess.Popen(["livestreamer",self.urls[tab][data],"best"])
+        process = subprocess.Popen(["livestreamer",self.urls[tab][data],"best"], stdout = subprocess.PIPE)
+        threading.Thread(target=self.getLivestreamerOutput, args=[process]).start()
         
+
+    def getLivestreamerOutput(self,process):
+        while (process.poll() is None):
+            #this is blocking if no data is awailable
+            out = process.stdout.readline()
+            textBuffer = self.textInfo.get_buffer()
+            #textBuffer.set_text("<sdfs<iomg<siomg",-1)
+            textBuffer.insert(textBuffer.get_end_iter(),out)
+            self.textInfo.set_buffer(textBuffer)
+            #time.sleep(3)
+        print "Process ended"
+
         
 
 
