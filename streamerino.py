@@ -163,6 +163,12 @@ class Streamerino (object):
 
 
     def createWelcomePage(self):
+
+        self.builderWelcome = Gtk.Builder()
+        self.builderWelcome.add_from_file("welcome.glade")
+        self.builderWelcome.connect_signals(self)
+
+
         path = which("livestreamer")
         
         if path is None:
@@ -171,51 +177,27 @@ class Streamerino (object):
         else:
             msg="<span size='16000' color='green' font_desc='Gentium Book'> " + u'\u2713' + "livestreamer found: " + path +"</span>"
 
-        
+        welcomeContainer = self.builderWelcome.get_object("box1")
+        lblLivestreamerInfo = self.builderWelcome.get_object("lblLivestreamerInfo")
+        lblStreamsInfo = self.builderWelcome.get_object("lblStreamsInfo")
 
 
-        hbox = Gtk.HBox(False,25)
-        pb = Pix.new_from_file_at_size('icon.png', 48,48)
-        #im = Gtk.Image()
-        #im.set_from_pixbuf(pb)
-
-        capL = Gtk.Label()
-        
-        l = Gtk.Label()
-        l.set_use_markup(True)
-        info = "<span foreground='purple' size='20000' font_desc='Gentium Book'>Welcome to Streamerino V0.8 \n </span>"
-        capL.set_use_markup(True)
-        capL.set_markup(info)
-        l.set_markup(msg)
-        vbox = Gtk.VBox(False,25)
-        #hbox.pack_start(im,False,False,0)
+        lblLivestreamerInfo.set_markup(msg)
+    
         buf = str(self.num_tabs) + " Games will be loaded\n"
         buf += str(self.num_streams) + " Streams per Game will be loaded"
         constInfo = formatString(buf,"16000","purple")
-        lab = Gtk.Label()
-        lab.set_use_markup(True)
-        lab.set_markup(constInfo)
+        lblStreamsInfo.set_markup(constInfo)
+
+
         
-
-
-
-
-        hbox.pack_start(l,False,False,0)
-        hbox.pack_start(lab,False,False,0)
-
-        vbox.pack_start(capL,True,True,0)
-        vbox.pack_start(hbox,True,True,0)
-
-        l2 = Gtk.Label()
-        l2.set_use_markup(True)
-        l2.set_markup("<span foreground='purple' size='16000' font_desc='Gentium Book'>start by choosing a game</span>")
-        vbox.pack_start(l2,True,True,0)
-        buf = vbox
-        self.last = buf
-        #self.mainBox.pack_start(buf,True,True,0)
-        self.mainBox.add(buf)
-        #mainBox.show_all()
-        #buf.show()
+        
+        self.last = welcomeContainer
+  
+    
+        self.mainBox.add(welcomeContainer)
+   
+   
 
 
     def createGameList(self):
