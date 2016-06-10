@@ -327,12 +327,14 @@ class Streamerino (object):
         while (process.poll() is None):
             #this is blocking if no data is awailable
             out = process.stdout.readline()
-            textBuffer = self.textInfo.get_buffer()
-            #textBuffer.set_text("<sdfs<iomg<siomg",-1)
-            textBuffer.insert(textBuffer.get_end_iter(),out)
-            self.textInfo.set_buffer(textBuffer)
+            self.say(out)
             #time.sleep(3)
         print "Process ended"
+
+    def say(self, msg):
+        textBuffer = self.textInfo.get_buffer()
+        textBuffer.insert(textBuffer.get_end_iter(),msg)
+        self.textInfo.set_buffer(textBuffer)
 
         
 
@@ -489,10 +491,12 @@ class Streamerino (object):
 
 
     def on_refresh_streams_click(self, *args):
+        self.say("Refreshing " + str(self.num_streams) + " streams\n")
         if not self.load:
             start_new_thread(self.getGameInfo,(self.currentTab,))
 
     def on_buttonRefreshGames_clicked(self, *args):
+        self.say("Refreshing " + str(self.num_tabs) + " games\n")
         start_new_thread(self.update_games_thread,(None,))
 
         
