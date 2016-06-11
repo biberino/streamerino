@@ -52,6 +52,8 @@ class Streamerino (object):
     #content_pics = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
     #urls = [[0 for x in range(num_streams)] for y in range(num_tabs)]
 
+    old_data = None #needed to remove color from unactive subsites
+
     hover_color = '#FF3FFC'
     normal_color = '#EDEDED' #basic gtk color
     active_color = '#C4FF8D'
@@ -307,7 +309,9 @@ class Streamerino (object):
                 #added eventbox 
                 eventbox = Gtk.EventBox()
                 eventbox.connect('button-press-event',self.startStream,s)
-                eventbox.add_events("GDK_POINTER_MOTION_MASK")
+                eventbox.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
+                eventbox.connect("motion-notify-event",self.mouse_over_pic,s)
+                #self.gameTabs.add_events(Gdk.EventMask.SCROLL_MASK
                 #self.modifyWidgetStateBehaviour(eventbox,self.active_color,Gtk.StateType.PRELIGHT)
                 
                 self.content_pics[i][s] = Gtk.Image()
@@ -331,6 +335,15 @@ class Streamerino (object):
 
             #test
             self.containers.append(scrolled_window)
+
+
+    def mouse_over_pic(self,w,e, data):
+
+        if self.old_data is not None:
+            self.modifyWidgetStateBehaviour(self.content_labels[self.currentTab][self.old_data],self.normal_color,Gtk.StateType.NORMAL)
+        self.modifyWidgetStateBehaviour(self.content_labels[self.currentTab][data],self.active_color,Gtk.StateType.NORMAL)
+        self.old_data = data
+
 
 
     def getGameInfo(self,index):
