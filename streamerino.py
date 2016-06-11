@@ -242,7 +242,7 @@ class Streamerino (object):
         markupstring +=  "<span foreground='purple' size='9500' font_desc='Sans Normal'>" + "Viewers: " + self.viewers[index] + "</span>"
         self.tabLabels[index].set_markup(markupstring)
 
-    def startStream(self,widget, data =None):
+    def startStream(self,widget,event, data =None):
         tab = self.currentTab
         print ("Starting " + self.urls[tab][data])
 
@@ -303,7 +303,15 @@ class Streamerino (object):
                 hbox = Gtk.HBox(False,20)
                 self.content_labels[i][s] = Gtk.Label("no data")
                 self.content_labels[i][s].set_use_markup(True)
+
+                #added eventbox 
+                eventbox = Gtk.EventBox()
+                eventbox.connect('button-press-event',self.startStream,s)
+                eventbox.add_events("GDK_POINTER_MOTION_MASK")
+                #self.modifyWidgetStateBehaviour(eventbox,self.active_color,Gtk.StateType.PRELIGHT)
+                
                 self.content_pics[i][s] = Gtk.Image()
+                eventbox.add(self.content_pics[i][s])
 
 
                 button = Gtk.Button("watch")
@@ -312,10 +320,11 @@ class Streamerino (object):
 
                 button.set_size_request(10,2)
                 fixed.put(button,10,25)
-                hbox.pack_start(fixed,False,False,0)
 
 
-                hbox.pack_start(self.content_pics[i][s],False,False,0)
+                #hbox.pack_start(fixed,False,False,0)
+                hbox.pack_start(eventbox,False,False,0)
+                #hbox.pack_start(self.content_pics[i][s],False,False,0)
                 hbox.pack_start(self.content_labels[i][s],False,False,0)
                 vbox.pack_start(hbox,False,False,0)
 
