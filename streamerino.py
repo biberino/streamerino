@@ -72,6 +72,7 @@ class Streamerino (object):
         self.builder.connect_signals(self)
         self.readConfig()
         self.content_labels = [[0 for x in range(self.num_streams)] for y in range(self.num_tabs)] 
+        self.status_labels = [[0 for x in range(self.num_streams)] for y in range(self.num_tabs)]
         self.content_pics = [[0 for x in range(self.num_streams)] for y in range(self.num_tabs)] 
         self.urls = [[0 for x in range(self.num_streams)] for y in range(self.num_tabs)]
 
@@ -305,7 +306,13 @@ class Streamerino (object):
             for s in range(0,self.num_streams):
 
                 #test fixed container
-                fixed = Gtk.Fixed()
+                #fixed = Gtk.Fixed()
+                vboxStatus = Gtk.VBox(False,20)
+                vboxStatus.set_border_width(5)
+                self.status_labels[i][s] = Gtk.Label("no data")
+                self.status_labels[i][s].set_use_markup(True)
+                self.status_labels[i][s].set_alignment(0,0)
+                vboxStatus.pack_start(self.status_labels[i][s],False,False,0)
                 hbox = Gtk.HBox(False,20)
                 self.content_labels[i][s] = Gtk.Label("no data")
                 self.content_labels[i][s].set_use_markup(True)
@@ -324,19 +331,20 @@ class Streamerino (object):
                 eventbox.add(self.content_pics[i][s])
 
 
-                button = Gtk.Button("watch")
-                button.connect("clicked",self.startStream, s)
-                self.modifyColor(button,self.hover_color,Gtk.StateFlags.PRELIGHT)
+                #button = Gtk.Button("watch")
+                #button.connect("clicked",self.startStream, s)
+                #self.modifyColor(button,self.hover_color,Gtk.StateFlags.PRELIGHT)
 
-                button.set_size_request(10,2)
-                fixed.put(button,10,25)
+                #button.set_size_request(10,2)
+                #fixed.put(button,10,25)
 
 
                 #hbox.pack_start(fixed,False,False,0)
-                hbox.pack_start(eventbox,False,False,0)
+                hbox.pack_start(eventbox,False,False,30)
                 #hbox.pack_start(self.content_pics[i][s],False,False,0)
                 hbox.pack_start(self.content_labels[i][s],False,False,0)
-                vbox.pack_start(hbox,False,False,0)
+                vboxStatus.pack_start(hbox,False,False,0)
+                vbox.pack_start(vboxStatus,False,False,25)
 
 
             #test
@@ -400,9 +408,16 @@ class Streamerino (object):
             info = info +"<b>Name:</b> " + display_name + "\n"
             info = info +"<b>Viewers:</b> " +  viewers + "\n"
             info = info + "<b>Language:</b> " + lang + "\n"
-            info = info + "<b>Status:</b> " + status + "\n"
+            #info = info + "<b>Status:</b> " + status + "\n"
             info = info + "</span>"
             self.content_labels[index][i].set_markup(info)
+            
+
+            status = "<span color='#471E86' size='15000'><b>"+  status + "</b></span>"
+            status.replace('','"')
+            status.encode("utf16","replace")
+            #print type(status)
+            self.status_labels[index][i].set_markup(status)
 
             self.urls[index][i] = json.dumps(decoded['streams'][i]['channel']['url'],sort_keys=True, indent=4)[1:-1]
             val = val + step;
