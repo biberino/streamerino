@@ -380,6 +380,9 @@ class Streamerino (object):
             display_name = json.dumps(decoded['streams'][i]['channel']['display_name'],sort_keys=True, indent=4)[1:-1]
             viewers = json.dumps(decoded['streams'][i]['viewers'],sort_keys=True, indent=4)
             lang = json.dumps(decoded['streams'][i]['channel']['broadcaster_language'],sort_keys=True, indent=4)[1:-1]
+            status = name = json.dumps(decoded['streams'][i]['channel']['status'],sort_keys=True, indent=4)[1:-1]
+
+        
 	    
 
 
@@ -388,6 +391,7 @@ class Streamerino (object):
             info = info +"<b>Name:</b> " + display_name + "\n"
             info = info +"<b>Viewers:</b> " +  viewers + "\n"
             info = info + "<b>Language:</b> " + lang + "\n"
+            info = info + "<b>Status:</b> " + status + "\n"
             info = info + "</span>"
             self.content_labels[index][i].set_markup(info)
 
