@@ -46,6 +46,10 @@ class Streamerino (object):
     currentTab=0
     content_pics_games = []
     livestreamerOutputLabels = []
+
+    #cursor for mouse over pic
+    cursor = Gdk.Cursor(Gdk.CursorType.HAND1)
+    
     
     #moved to init, need to do it after config was read
     #content_labels = [[0 for x in range(num_streams)] for y in range(num_tabs)] 
@@ -311,6 +315,8 @@ class Streamerino (object):
                 eventbox.connect('button-press-event',self.startStream,s)
                 eventbox.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
                 eventbox.connect("motion-notify-event",self.mouse_over_pic,s)
+                eventbox.connect("realize",self.set_cursor)
+                
                 #self.gameTabs.add_events(Gdk.EventMask.SCROLL_MASK
                 #self.modifyWidgetStateBehaviour(eventbox,self.active_color,Gtk.StateType.PRELIGHT)
                 
@@ -336,6 +342,9 @@ class Streamerino (object):
             #test
             self.containers.append(scrolled_window)
 
+
+    def set_cursor(self, w):
+        w.get_window().set_cursor(self.cursor)
 
     def mouse_over_pic(self,w,e, data):
 
